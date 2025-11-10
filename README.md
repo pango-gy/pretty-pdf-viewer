@@ -48,20 +48,11 @@ npm install pretty-pdf-viewer
 ### React
 
 ```tsx
-import { PrettyPDFViewer } from 'pretty-pdf-viewer';
+import { PDFViewer } from 'pretty-pdf-viewer';
 import 'pretty-pdf-viewer/dist/styles.css';
-import { useEffect, useRef } from 'react';
 
-function PDFViewer({ url }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const viewer = new PrettyPDFViewer(ref.current);
-    viewer.load(url);
-    return () => viewer.destroy();
-  }, [url]);
-
-  return <div ref={ref} style={{ width: '100%', height: '100vh' }} />;
+function App() {
+  return <PDFViewer pdfUrl="/sample.pdf" />;
 }
 ```
 
@@ -70,12 +61,11 @@ function PDFViewer({ url }) {
 ```tsx
 'use client';
 
-import dynamic from 'next/dynamic';
-
-const PDFViewer = dynamic(() => import('./PDFViewer'), { ssr: false });
+import { PDFViewer } from 'pretty-pdf-viewer';
+import 'pretty-pdf-viewer/dist/styles.css';
 
 export default function Page() {
-  return <PDFViewer url="/sample.pdf" />;
+  return <PDFViewer pdfUrl="/sample.pdf" />;
 }
 ```
 
