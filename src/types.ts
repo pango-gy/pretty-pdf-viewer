@@ -23,8 +23,11 @@ export interface PrettyPDFViewerOptions {
   /** 애니메이션 지속 시간 (ms, 기본값: 800) */
   animationDuration?: number;
   
-  /** 페이지 품질 (기본값: 2, 높을수록 선명하지만 무거움) */
+  /** 페이지 품질 (기본값: 4, 높을수록 선명하지만 무거움) */
   pageQuality?: number;
+  
+  /** Three.js 페이지 플립 애니메이션 사용 여부 (기본값: true) */
+  useThreeJS?: boolean;
 }
 
 /**

@@ -52,14 +52,15 @@ export class PrettyPDFViewer implements PDFViewerInstance {
       onPageChange: options.onPageChange ?? (() => {}),
       onError: options.onError ?? (() => {}),
       animationDuration: options.animationDuration ?? 800,
-      pageQuality: options.pageQuality ?? 3, // 3배 해상도 (고화질)
+      pageQuality: options.pageQuality ?? 4, // 4배 해상도 (최고화질)
+      useThreeJS: options.useThreeJS ?? true, // 기본적으로 Three.js 사용
     };
 
     // 컴포넌트 초기화
     this.pdfParser = new PDFParser();
     this.pageRenderer = new PageRenderer();
     this.bookLayout = new BookLayout(this.container);
-    this.flipAnimation = new FlipAnimation(this.container, this.options.animationDuration);
+    this.flipAnimation = new FlipAnimation(this.container, this.options.animationDuration, this.options.useThreeJS);
     this.controlBar = new ControlBar(this.container);
 
     // 컨트롤 바 콜백 등록
@@ -68,11 +69,18 @@ export class PrettyPDFViewer implements PDFViewerInstance {
     this.controlBar.setZoomInCallback(() => this.zoomIn());
     this.controlBar.setZoomOutCallback(() => this.zoomOut());
     this.controlBar.setFullscreenCallback(() => this.toggleFullscreen());
+    this.controlBar.setPrintCallback(() => this.print());
+    this.controlBar.setDownloadCallback(() => this.download());
+    this.controlBar.setShareCallback(() => this.share());
+    this.controlBar.setPageChangeCallback((page) => this.goToPage(page));
 
     // 초기 로드
     if (this.options.pdfFile) {
       this.load(this.options.pdfFile).catch(this.options.onError);
     }
+    
+    // 리사이즈 핸들러 등록
+    this.setupResizeHandler();
   }
 
   /**
@@ -85,6 +93,15 @@ export class PrettyPDFViewer implements PDFViewerInstance {
       this.pdfDoc = await this.pdfParser.parse();
       this.totalPages = this.pdfDoc.totalPages;
       this.currentPage = this.options.initialPage;
+      
+      // PDF를 Blob으로 저장 (다운로드용)
+      if (source instanceof File || source instanceof Blob) {
+        this.pdfBlob = source;
+        this.options.pdfFile = source;
+      } else if (typeof source === 'string') {
+        // URL인 경우 나중에 필요할 때 fetch
+        this.options.pdfFile = source;
+      }
 
       // 첫 페이지 렌더링
       await this.renderCurrentSpread();
@@ -143,10 +160,20 @@ export class PrettyPDFViewer implements PDFViewerInstance {
     const spread = this.bookLayout.getCurrentSpread();
     if (spread.left !== null && spread.right !== null && spread.right <= this.totalPages) {
       // 양면 보기: "2-3 / 4" (오른쪽 페이지가 존재하는 경우만)
-      this.controlBar.updatePageInfo(`${spread.left}-${spread.right}`, this.totalPages);
+      // 스프레드 뷰일 때 두 페이지 표시
+      if (spread.right && spread.right <= this.totalPages) {
+        this.controlBar.updatePageInfo(`${spread.left}-${spread.right}`, this.totalPages);
+      } else {
+        this.controlBar.updatePageInfo(spread.left, this.totalPages);
+      }
     } else if (spread.left !== null) {
       // 단일 페이지: "1 / 4" 또는 마지막 페이지가 단독인 경우 "4 / 4"
-      this.controlBar.updatePageInfo(spread.left, this.totalPages);
+      // 스프레드 뷰일 때 두 페이지 표시
+      if (spread.right && spread.right <= this.totalPages) {
+        this.controlBar.updatePageInfo(`${spread.left}-${spread.right}`, this.totalPages);
+      } else {
+        this.controlBar.updatePageInfo(spread.left, this.totalPages);
+      }
     }
   }
 
@@ -238,6 +265,21 @@ export class PrettyPDFViewer implements PDFViewerInstance {
   }
 
   /**
+   * 리사이즈 핸들러 설정
+   */
+  private setupResizeHandler(): void {
+    const resizeHandler = () => {
+      this.flipAnimation.resize();
+      this.renderCurrentSpread();
+    };
+    
+    window.addEventListener('resize', resizeHandler);
+    
+    // cleanup 시 제거를 위한 참조 저장
+    (this as any).resizeHandler = resizeHandler;
+  }
+
+  /**
    * 줌 레벨 설정
    */
   async setZoom(level: number): Promise<void> {
@@ -245,6 +287,9 @@ export class PrettyPDFViewer implements PDFViewerInstance {
     
     // CSS transform scale로 즉시 적용
     this.bookLayout.setScale(this.currentZoom);
+    
+    // 컨트롤 바 줌 레벨 업데이트
+    this.controlBar.updateZoomLevel(this.currentZoom);
   }
 
   /**
@@ -261,6 +306,188 @@ export class PrettyPDFViewer implements PDFViewerInstance {
   }
 
   /**
+   * 현재 페이지 인쇄
+   */
+  async print(): Promise<void> {
+    if (!this.pdfDoc) return;
+    
+    // 프린트용 iframe 생성
+    const printFrame = document.createElement('iframe');
+    printFrame.style.position = 'absolute';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = 'none';
+    document.body.appendChild(printFrame);
+    
+    const printWindow = printFrame.contentWindow;
+    if (!printWindow) return;
+    
+    // 현재 페이지 렌더링
+    const canvas = await this.getOrRenderPage(this.currentPage);
+    
+    // 프린트 문서 작성
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Print PDF - Page ${this.currentPage}</title>
+        <style>
+          body { margin: 0; padding: 0; }
+          img { 
+            max-width: 100%; 
+            max-height: 100vh; 
+            display: block; 
+            margin: 0 auto;
+          }
+          @media print {
+            @page { margin: 0; }
+            body { margin: 0; }
+          }
+        </style>
+      </head>
+      <body>
+        <img src="${canvas.toDataURL()}" />
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // 이미지 로드 후 프린트
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      setTimeout(() => {
+        document.body.removeChild(printFrame);
+      }, 100);
+    }, 250);
+  }
+  
+  /**
+   * PDF 다운로드
+   */
+  private pdfBlob: Blob | null = null;
+  
+  async download(): Promise<void> {
+    try {
+      let blob: Blob;
+      
+      // 이미 저장된 blob이 있으면 사용
+      if (this.pdfBlob) {
+        blob = this.pdfBlob;
+      } else if (this.options.pdfFile) {
+        if (this.options.pdfFile instanceof File || this.options.pdfFile instanceof Blob) {
+          blob = this.options.pdfFile;
+          this.pdfBlob = blob;
+        } else {
+          // URL인 경우 fetch
+          const response = await fetch(this.options.pdfFile as string);
+          blob = await response.blob();
+          this.pdfBlob = blob;
+        }
+      } else {
+        console.error('No PDF file available for download');
+        return;
+      }
+      
+      // 다운로드 링크 생성
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `document-${new Date().toISOString().split('T')[0]}.pdf`;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      
+      // 정리
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      this.showNotification('다운로드 시작됨');
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      this.showNotification('다운로드 실패');
+    }
+  }
+
+  /**
+   * 공유 기능
+   */
+  async share(): Promise<void> {
+    const shareData = {
+      title: 'PDF Document',
+      text: `Check out this PDF - Page ${this.currentPage} of ${this.totalPages}`,
+      url: window.location.href
+    };
+    
+    // Web Share API 지원 여부 확인
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.log('Share cancelled or failed:', error);
+      }
+    } else {
+      // Web Share API를 지원하지 않는 경우 클립보드에 복사
+      const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(shareText);
+        this.showNotification('링크가 클립보드에 복사되었습니다');
+      }
+    }
+  }
+  
+  /**
+   * 알림 메시지 표시
+   */
+  private showNotification(message: string): void {
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 2000;
+      animation: slideDown 0.3s ease;
+    `;
+    
+    // 애니메이션 스타일 추가
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideDown {
+        from {
+          transform: translateX(-50%) translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    this.container.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transition = 'opacity 0.3s';
+      setTimeout(() => {
+        notification.remove();
+        style.remove();
+      }, 300);
+    }, 2000);
+  }
+
+  /**
    * 뷰어를 제거합니다
    */
   destroy(): void {
@@ -269,5 +496,10 @@ export class PrettyPDFViewer implements PDFViewerInstance {
     this.controlBar.dispose();
     this.pageRenderer.clearCache();
     this.pageCache.clear();
+    
+    // 리사이즈 핸들러 제거
+    if ((this as any).resizeHandler) {
+      window.removeEventListener('resize', (this as any).resizeHandler);
+    }
   }
 }

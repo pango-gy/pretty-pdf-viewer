@@ -2,32 +2,91 @@
  * CSS 3D Transform 기반 페이지 넘김 애니메이션
  * 실제 책처럼 페이지가 회전하면서 넘어가는 효과
  */
+import { ThreeJSFlipAnimation } from '../three/ThreeJSFlipAnimation';
+
 export class FlipAnimation {
   private container: HTMLElement;
   private animationDuration: number;
   private flipContainer: HTMLDivElement | null = null;
+  private threeJSAnimation: ThreeJSFlipAnimation | null = null;
+  private useThreeJS: boolean;
 
-  constructor(container: HTMLElement, duration: number = 800) {
+  constructor(container: HTMLElement, duration: number = 800, useThreeJS: boolean = true) {
     this.container = container;
     this.animationDuration = duration;
+    this.useThreeJS = useThreeJS;
+    
+    // Three.js 애니메이션 초기화
+    if (this.useThreeJS) {
+      this.threeJSAnimation = new ThreeJSFlipAnimation(container, duration);
+    }
   }
 
   /**
    * 앞으로 페이지 넘김 (오른쪽에서 왼쪽으로)
    */
   async flipForward(currentCanvas: HTMLCanvasElement, nextLeftCanvas: HTMLCanvasElement, nextRightCanvas: HTMLCanvasElement | null): Promise<void> {
-    return this.performFlip(currentCanvas, nextLeftCanvas, nextRightCanvas, 'forward');
+    if (this.useThreeJS && this.threeJSAnimation) {
+      // Three.js 애니메이션 사용
+      // currentCanvas를 좌우로 분할하여 전달
+      const currentLeftCanvas = this.splitCanvas(currentCanvas, 'left');
+      const currentRightCanvas = this.splitCanvas(currentCanvas, 'right');
+      
+      return this.threeJSAnimation.flipForward(
+        currentLeftCanvas,
+        currentRightCanvas,
+        nextLeftCanvas,
+        nextRightCanvas
+      );
+    } else {
+      // 기존 CSS 애니메이션 사용
+      return this.performFlip(currentCanvas, nextLeftCanvas, nextRightCanvas, 'forward');
+    }
   }
 
   /**
    * 뒤로 페이지 넘김 (왼쪽에서 오른쪽으로)
    */
   async flipBackward(currentCanvas: HTMLCanvasElement, prevLeftCanvas: HTMLCanvasElement, prevRightCanvas: HTMLCanvasElement | null): Promise<void> {
-    return this.performFlip(currentCanvas, prevLeftCanvas, prevRightCanvas, 'backward');
+    if (this.useThreeJS && this.threeJSAnimation) {
+      // Three.js 애니메이션 사용
+      const currentLeftCanvas = this.splitCanvas(currentCanvas, 'left');
+      const currentRightCanvas = this.splitCanvas(currentCanvas, 'right');
+      
+      return this.threeJSAnimation.flipBackward(
+        currentLeftCanvas,
+        currentRightCanvas,
+        prevLeftCanvas,
+        prevRightCanvas
+      );
+    } else {
+      // 기존 CSS 애니메이션 사용
+      return this.performFlip(currentCanvas, prevLeftCanvas, prevRightCanvas, 'backward');
+    }
+  }
+  
+  /**
+   * Canvas를 좌우로 분할
+   */
+  private splitCanvas(canvas: HTMLCanvasElement, side: 'left' | 'right'): HTMLCanvasElement {
+    const splitCanvas = document.createElement('canvas');
+    const ctx = splitCanvas.getContext('2d');
+    if (!ctx) throw new Error('Failed to get canvas context');
+    
+    splitCanvas.width = canvas.width / 2;
+    splitCanvas.height = canvas.height;
+    
+    if (side === 'left') {
+      ctx.drawImage(canvas, 0, 0, canvas.width / 2, canvas.height, 0, 0, splitCanvas.width, splitCanvas.height);
+    } else {
+      ctx.drawImage(canvas, canvas.width / 2, 0, canvas.width / 2, canvas.height, 0, 0, splitCanvas.width, splitCanvas.height);
+    }
+    
+    return splitCanvas;
   }
 
   /**
-   * 페이지 넘김 애니메이션 실행
+   * 기존 CSS 기반 페이지 넘김 애니메이션 실행
    */
   private async performFlip(
     flipPageCanvas: HTMLCanvasElement,
@@ -128,6 +187,36 @@ export class FlipAnimation {
     if (this.flipContainer) {
       this.flipContainer.remove();
       this.flipContainer = null;
+    }
+    
+    if (this.threeJSAnimation) {
+      this.threeJSAnimation.dispose();
+      this.threeJSAnimation = null;
+    }
+  }
+  
+  /**
+   * 화면 크기 조정
+   */
+  resize(): void {
+    if (this.threeJSAnimation) {
+      this.threeJSAnimation.resize();
+    }
+  }
+  
+  /**
+   * Three.js 사용 여부 설정
+   */
+  setUseThreeJS(useThreeJS: boolean): void {
+    if (this.useThreeJS === useThreeJS) return;
+    
+    this.useThreeJS = useThreeJS;
+    
+    if (useThreeJS && !this.threeJSAnimation) {
+      this.threeJSAnimation = new ThreeJSFlipAnimation(this.container, this.animationDuration);
+    } else if (!useThreeJS && this.threeJSAnimation) {
+      this.threeJSAnimation.dispose();
+      this.threeJSAnimation = null;
     }
   }
 }
