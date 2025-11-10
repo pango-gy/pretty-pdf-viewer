@@ -205,9 +205,56 @@ export class PrettyPDFViewer implements PDFViewerInstance {
       return;
     }
 
-    // 일단 애니메이션 없이 단순 전환
-    this.currentPage = page;
-    await this.renderCurrentSpread();
+    if (!animate || !this.options.useThreeJS) {
+      this.currentPage = page;
+      await this.renderCurrentSpread();
+      return;
+    }
+
+    this.isAnimating = true;
+    const oldPage = this.currentPage;
+    const direction = page > oldPage ? 'forward' : 'backward';
+
+    try {
+      this.bookLayout.hidePages();
+
+      const currentSpread = this.bookLayout.getCurrentSpread();
+      const targetSpread = this.bookLayout.getSpreadForPage(page, this.totalPages);
+
+      const canvases = {
+        currentLeft: currentSpread.left ? await this.getOrRenderPage(currentSpread.left) : this.bookLayout.createEmptyCanvas(),
+        currentRight: currentSpread.right ? await this.getOrRenderPage(currentSpread.right) : this.bookLayout.createEmptyCanvas(),
+        targetLeft: targetSpread.left ? await this.getOrRenderPage(targetSpread.left) : this.bookLayout.createEmptyCanvas(),
+        targetRight: targetSpread.right ? await this.getOrRenderPage(targetSpread.right) : this.bookLayout.createEmptyCanvas(),
+      };
+
+      if (direction === 'forward') {
+        await this.flipAnimation.flipForward(
+          canvases.currentLeft,
+          canvases.currentRight,
+          canvases.targetLeft,
+          canvases.targetRight
+        );
+      } else {
+        await this.flipAnimation.flipBackward(
+          canvases.currentLeft,
+          canvases.currentRight,
+          canvases.targetLeft,
+          canvases.targetRight
+        );
+      }
+
+      this.currentPage = page;
+      await this.renderCurrentSpread();
+
+    } catch (error) {
+      console.error("Animation failed, reverting to previous page.", error);
+      this.currentPage = oldPage;
+      await this.renderCurrentSpread();
+    } finally {
+      this.isAnimating = false;
+      this.bookLayout.showPages();
+    }
   }
 
   /**
@@ -225,7 +272,7 @@ export class PrettyPDFViewer implements PDFViewerInstance {
     }
 
     if (nextPageNum <= this.totalPages) {
-      await this.goToPage(nextPageNum, false);
+      await this.goToPage(nextPageNum, true);
     }
   }
 
@@ -244,7 +291,7 @@ export class PrettyPDFViewer implements PDFViewerInstance {
     }
 
     if (prevPageNum >= 1) {
-      await this.goToPage(prevPageNum, false);
+      await this.goToPage(prevPageNum, true);
     }
   }
 

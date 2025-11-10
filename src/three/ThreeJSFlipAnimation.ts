@@ -361,7 +361,7 @@ export class ThreeJSFlipAnimation {
     const flipGeometry = this.createFlipPageGeometry();
     const flipMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        frontTexture: { value: prevRightTexture || currentLeftTexture },
+        frontTexture: { value: prevRightTexture ?? currentLeftTexture },
         backTexture: { value: currentLeftTexture },
         flipProgress: { value: 0.0 },
         curlAmount: { value: 0.15 }

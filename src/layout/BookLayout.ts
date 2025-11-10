@@ -178,6 +178,20 @@ export class BookLayout {
     this.currentSpread = { left, right };
   }
 
+  getSpreadForPage(page: number, totalPages: number): { left: number | null, right: number | null } {
+    if (page === 1) {
+      return { left: 1, right: 2 };
+    } else if (page === totalPages && totalPages % 2 === 1) {
+      return { left: totalPages, right: null };
+    } else {
+      if (page % 2 === 0) {
+        return { left: page, right: page + 1 };
+      } else {
+        return { left: page - 1, right: page };
+      }
+    }
+  }
+
   /**
    * 줌 레벨 설정
    */
@@ -229,6 +243,34 @@ export class BookLayout {
 
   getRightPageContainer(): HTMLDivElement {
     return this.rightPageContainer;
+  }
+
+  hidePages(): void {
+    this.leftPageContainer.style.visibility = 'hidden';
+    this.rightPageContainer.style.visibility = 'hidden';
+  }
+
+  showPages(): void {
+    this.leftPageContainer.style.visibility = 'visible';
+    this.rightPageContainer.style.visibility = 'visible';
+  }
+
+  createEmptyCanvas(): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+    const pageContainer = this.leftPageContainer.firstChild || this.rightPageContainer.firstChild;
+    if (pageContainer && pageContainer instanceof HTMLCanvasElement) {
+        canvas.width = pageContainer.width;
+        canvas.height = pageContainer.height;
+    } else {
+        canvas.width = this.container.clientWidth / 2;
+        canvas.height = this.container.clientHeight;
+    }
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    return canvas;
   }
 }
 
