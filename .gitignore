@@ -40,3 +40,8 @@ coverage/
 .cursor/
 .cursorignore
 .cursorrules
+
+# Demo builds
+demo/**/node_modules/
+demo/**/dist/
+demo/**/.vite/

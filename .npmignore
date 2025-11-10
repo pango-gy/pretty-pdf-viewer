@@ -13,3 +13,13 @@ rollup.config.js
 coverage/
 *.tsbuildinfo
 
+# Demo files
+demo/
+
+# Cursor
+.cursor/
+.cursorignore
+.cursorrules
+
+# Build tools
+.prettierrc.json

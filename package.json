@@ -21,22 +21,23 @@
     "page-flip",
     "webgl"
   ],
-  "author": "",
+  "author": "yuseungjae",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/pretty-pdf-viewer.git"
+    "url": "https://github.com/yuseungjae/pretty-pdf-viewer.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/pretty-pdf-viewer/issues"
+    "url": "https://github.com/yuseungjae/pretty-pdf-viewer/issues"
   },
-  "homepage": "https://github.com/yourusername/pretty-pdf-viewer#readme",
+  "homepage": "https://github.com/yuseungjae/pretty-pdf-viewer#readme",
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
   "dependencies": {
+    "@tweenjs/tween.js": "^25.0.0",
     "pdfjs-dist": "^4.0.379",
     "three": "^0.160.0"
   },
