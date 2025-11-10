@@ -4,10 +4,14 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# Build outputs
+# Build output
 dist/
-build/
 *.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
 
 # IDE
 .vscode/
@@ -15,25 +19,14 @@ build/
 *.swp
 *.swo
 *~
-
-# Cursor
-.cursor/
-.cursorignore
-
-# OS
 .DS_Store
-Thumbs.db
 
 # Logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# Environment
-.env
-.env.local
-.env.*.local
 
 # Testing
 coverage/
@@ -41,7 +34,9 @@ coverage/
 
 # Temporary files
 *.tmp
-*.temp
+.cache/
 
-# Example files (선택사항)
-# example.html
+# Cursor
+.cursor/
+.cursorignore
+.cursorrules

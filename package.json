@@ -1,58 +1,53 @@
 {
   "name": "pretty-pdf-viewer",
   "version": "0.1.0",
-  "type": "module",
-  "description": "A beautiful and modern PDF viewer library for JavaScript",
+  "description": "A beautiful 3D PDF viewer with realistic page-flipping animation using Three.js",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "type": "module",
   "scripts": {
+    "dev": "rollup -c -w",
     "build": "rollup -c && npm run copy-css",
     "copy-css": "mkdir -p dist && cp src/styles.css dist/styles.css",
-    "dev": "rollup -c -w",
-    "test": "jest",
-    "lint": "eslint src --ext .ts,.tsx",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx}\"",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
     "pdf",
     "viewer",
-    "pdf-viewer",
-    "pdf-reader",
-    "document-viewer"
+    "three.js",
+    "3d",
+    "ebook",
+    "page-flip",
+    "webgl"
   ],
   "author": "",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/pretty-pdf-viewer.git"
+    "url": "https://github.com/yourusername/pretty-pdf-viewer.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/pretty-pdf-viewer/issues"
+    "url": "https://github.com/yourusername/pretty-pdf-viewer/issues"
   },
-  "homepage": "https://github.com/YOUR_USERNAME/pretty-pdf-viewer#readme",
+  "homepage": "https://github.com/yourusername/pretty-pdf-viewer#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "pdfjs-dist": "^4.0.379",
+    "three": "^0.160.0"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.5",
-    "@types/node": "^20.10.6",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "prettier": "^3.1.1",
-    "rollup": "^4.6.1",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/three": "^0.160.0",
+    "rollup": "^4.9.6",
     "rollup-plugin-dts": "^6.1.0",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3"
-  },
-  "peerDependencies": {},
-  "dependencies": {
-    "pdfjs-dist": "^3.11.174"
   }
 }
