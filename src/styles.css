@@ -1,0 +1,491 @@
+/* Pretty PDF Viewer 기본 스타일 */
+
+.pretty-pdf-viewer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 툴바 스타일 */
+.pretty-pdf-viewer__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pretty-pdf-viewer__toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pretty-pdf-viewer__toolbar-group--right {
+  margin-left: auto;
+}
+
+.pretty-pdf-viewer__btn {
+  padding: 8px 12px;
+  border: 1px solid #d0d0d0;
+  background-color: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+}
+
+.pretty-pdf-viewer__btn:hover:not(:disabled) {
+  background-color: #f5f5f5;
+  border-color: #b0b0b0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pretty-pdf-viewer__btn:active:not(:disabled) {
+  background-color: #e8e8e8;
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.pretty-pdf-viewer__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.pretty-pdf-viewer__btn--icon {
+  padding: 8px;
+  border: none;
+  background-color: transparent;
+  color: #555;
+}
+
+.pretty-pdf-viewer__btn--icon:hover:not(:disabled) {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.pretty-pdf-viewer__btn--icon svg {
+  display: block;
+}
+
+.pretty-pdf-viewer__page-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #333333;
+}
+
+.pretty-pdf-viewer__page-input {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease;
+}
+
+.pretty-pdf-viewer__page-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.pretty-pdf-viewer__page-separator {
+  color: #999;
+  font-weight: 500;
+}
+
+.pretty-pdf-viewer__zoom-info {
+  font-size: 14px;
+  color: #666;
+  min-width: 50px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* 로딩 인디케이터 */
+.pretty-pdf-viewer__loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 1000;
+  gap: 16px;
+}
+
+.pretty-pdf-viewer__spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #f0f0f0;
+  border-top-color: #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pretty-pdf-viewer__loading-text {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 에러 메시지 */
+.pretty-pdf-viewer__error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 1000;
+  gap: 12px;
+  padding: 20px;
+}
+
+.pretty-pdf-viewer__error-icon {
+  font-size: 48px;
+}
+
+.pretty-pdf-viewer__error-text {
+  font-size: 16px;
+  color: #d32f2f;
+  text-align: center;
+  max-width: 500px;
+  line-height: 1.5;
+}
+
+/* 콘텐츠 영역 */
+.pretty-pdf-viewer__content {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background-color: #f5f5f5;
+  padding: 20px;
+  cursor: grab;
+  transition: background-color 0.3s ease;
+}
+
+.pretty-pdf-viewer__content:active {
+  cursor: grabbing;
+}
+
+.pretty-pdf-viewer__content::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.pretty-pdf-viewer__content::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 6px;
+}
+
+.pretty-pdf-viewer__content::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 6px;
+}
+
+.pretty-pdf-viewer__content::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* 스프레드 컨테이너 (양면 보기) */
+.pretty-pdf-viewer__spread-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  perspective: 2500px;
+  perspective-origin: center center;
+  transform-style: preserve-3d;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* 페이지 컨테이너 기본 */
+.pretty-pdf-viewer__page {
+  display: none !important;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transition: opacity 0.3s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* 표지 (첫 페이지) - 오른쪽에만 */
+.pretty-pdf-viewer__page--cover {
+  display: flex !important;
+}
+
+/* 왼쪽 페이지 - 명시적으로 보이기 */
+.pretty-pdf-viewer__page--left {
+  display: flex !important;
+  order: 1;
+}
+
+/* 오른쪽 페이지 - 명시적으로 보이기 */
+.pretty-pdf-viewer__page--right {
+  display: flex !important;
+  order: 2;
+}
+
+.pretty-pdf-viewer__page-canvas {
+  display: block;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.2), 
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 2px;
+  max-width: 45vw;
+  max-height: 85vh;
+  user-select: none;
+  pointer-events: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 애니메이션 중인 페이지 (z-index가 높을 때) */
+.pretty-pdf-viewer__page[style*="z-index: 10"] .pretty-pdf-viewer__page-canvas {
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+/* 왼쪽 페이지 캔버스 */
+.pretty-pdf-viewer__page--left .pretty-pdf-viewer__page-canvas {
+  box-shadow: 
+    4px 0 12px rgba(0, 0, 0, 0.15),
+    0 4px 20px rgba(0, 0, 0, 0.15),
+    inset -2px 0 4px rgba(0, 0, 0, 0.1);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* 오른쪽 페이지 캔버스 */
+.pretty-pdf-viewer__page--right .pretty-pdf-viewer__page-canvas {
+  box-shadow: 
+    -4px 0 12px rgba(0, 0, 0, 0.15),
+    0 4px 20px rgba(0, 0, 0, 0.15),
+    inset 2px 0 4px rgba(0, 0, 0, 0.1);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* 다크 테마 */
+.pretty-pdf-viewer--dark {
+  background-color: #1a1a1a;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__toolbar {
+  background-color: #2a2a2a;
+  border-bottom-color: #3a3a3a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__btn {
+  background-color: #3a3a3a;
+  border-color: #4a4a4a;
+  color: #ffffff;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__btn:hover:not(:disabled) {
+  background-color: #4a4a4a;
+  border-color: #5a5a5a;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__btn:active:not(:disabled) {
+  background-color: #2a2a2a;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__btn--icon {
+  color: #e0e0e0;
+  background-color: transparent;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__btn--icon:hover:not(:disabled) {
+  background-color: #3a3a3a;
+  color: #ffffff;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__page-info {
+  color: #e0e0e0;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__page-input {
+  background-color: #3a3a3a;
+  border-color: #4a4a4a;
+  color: #ffffff;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__page-input:focus {
+  border-color: #5a9de8;
+  box-shadow: 0 0 0 3px rgba(90, 157, 232, 0.2);
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__zoom-info {
+  color: #b0b0b0;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__content {
+  background-color: #1a1a1a;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__content canvas {
+  background-color: #2a2a2a;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__loading {
+  background-color: rgba(26, 26, 26, 0.95);
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__spinner {
+  border-color: #3a3a3a;
+  border-top-color: #5a9de8;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__loading-text {
+  color: #b0b0b0;
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__error {
+  background-color: rgba(26, 26, 26, 0.95);
+}
+
+.pretty-pdf-viewer--dark .pretty-pdf-viewer__error-text {
+  color: #ff6b6b;
+}
+
+/* 자동 테마 (시스템 설정 따름) */
+@media (prefers-color-scheme: dark) {
+  .pretty-pdf-viewer--auto {
+    background-color: #1a1a1a;
+  }
+
+  .pretty-pdf-viewer--auto .pretty-pdf-viewer__toolbar {
+    background-color: #2a2a2a;
+    border-bottom-color: #3a3a3a;
+  }
+
+  .pretty-pdf-viewer--auto .pretty-pdf-viewer__btn {
+    background-color: #3a3a3a;
+    border-color: #4a4a4a;
+    color: #ffffff;
+  }
+
+  .pretty-pdf-viewer--auto .pretty-pdf-viewer__btn:hover {
+    background-color: #4a4a4a;
+    border-color: #5a5a5a;
+  }
+
+  .pretty-pdf-viewer--auto .pretty-pdf-viewer__page-info {
+    color: #e0e0e0;
+  }
+
+  .pretty-pdf-viewer--auto .pretty-pdf-viewer__content {
+    background-color: #1a1a1a;
+  }
+}
+
+/* 전체화면 모드 */
+.pretty-pdf-viewer:fullscreen,
+.pretty-pdf-viewer:-webkit-full-screen,
+.pretty-pdf-viewer:-moz-full-screen,
+.pretty-pdf-viewer:-ms-fullscreen {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .pretty-pdf-viewer__toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
+  }
+
+  .pretty-pdf-viewer__toolbar-group {
+    gap: 4px;
+  }
+
+  .pretty-pdf-viewer__btn {
+    padding: 6px 10px;
+    min-width: 32px;
+    height: 32px;
+  }
+
+  .pretty-pdf-viewer__btn--icon {
+    padding: 6px;
+  }
+
+  .pretty-pdf-viewer__btn--icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pretty-pdf-viewer__page-input {
+    width: 50px;
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+
+  .pretty-pdf-viewer__zoom-info {
+    font-size: 12px;
+    min-width: 40px;
+  }
+
+  .pretty-pdf-viewer__content {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pretty-pdf-viewer__toolbar-group--right {
+    order: -1;
+    width: 100%;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+}
+

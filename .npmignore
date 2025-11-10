@@ -1,0 +1,15 @@
+src/
+node_modules/
+*.test.ts
+*.test.js
+tsconfig.json
+rollup.config.js
+.gitignore
+.npmignore
+.vscode/
+.idea/
+*.log
+.env
+coverage/
+*.tsbuildinfo
+
