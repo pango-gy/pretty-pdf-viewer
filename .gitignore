@@ -42,6 +42,8 @@ coverage/
 .cursorrules
 
 # Demo builds
+demo/
 demo/**/node_modules/
 demo/**/dist/
 demo/**/.vite/
+
