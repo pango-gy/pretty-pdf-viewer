@@ -1,6 +1,6 @@
 {
   "name": "pretty-pdf-viewer",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "A beautiful 3D PDF viewer with realistic page-flipping animation using Three.js",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yuseungjae/pretty-pdf-viewer.git"
+    "url": "git+https://github.com/yuseungjae/pretty-pdf-viewer.git"
   },
   "bugs": {
     "url": "https://github.com/yuseungjae/pretty-pdf-viewer/issues"
@@ -40,6 +40,7 @@
   ],
   "dependencies": {
     "@tweenjs/tween.js": "^25.0.0",
+    "page-flip": "^2.0.7",
     "pdfjs-dist": "^4.0.379",
     "three": "^0.160.0"
   },
@@ -48,6 +49,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^6.0.3",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^24.10.0",
     "@types/react": "^18.3.26",
     "@types/three": "^0.160.0",
     "express": "^5.1.0",

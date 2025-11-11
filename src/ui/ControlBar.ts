@@ -44,11 +44,12 @@ export class ControlBar {
       align-items: center;
       gap: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
-      z-index: 1000;
+      z-index: 2000;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       font-size: 14px;
       transition: all 0.3s ease;
       user-select: none;
+      pointer-events: auto;
     `;
 
     // 왼쪽 그룹 (페이지 네비게이션)
