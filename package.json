@@ -1,6 +1,6 @@
 {
   "name": "pretty-pdf-viewer",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "A beautiful 3D PDF viewer with realistic page-flipping animation using Three.js",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
