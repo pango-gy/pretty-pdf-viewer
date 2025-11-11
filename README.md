@@ -32,7 +32,7 @@ npm install pretty-pdf-viewer
 import { PDFViewer } from 'pretty-pdf-viewer';
 
 function App() {
-  return <PDFViewer pdfUrl="/sample.pdf" />;
+  return <PDFViewer pdfUrl="https://yoururl.com/sample.pdf" />;
 }
 ```
 
@@ -44,7 +44,7 @@ function App() {
 import { PDFViewer } from 'pretty-pdf-viewer';
 
 export default function Page() {
-  return <PDFViewer pdfUrl="/sample.pdf" />;
+  return <PDFViewer pdfUrl="https://yoururl.com/sample.pdf" />;
 }
 ```
 
